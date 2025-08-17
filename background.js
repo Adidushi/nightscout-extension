@@ -115,13 +115,25 @@ extAPI.runtime.onInstalled.addListener(function () {
 //https://test.herokuapp.com/api/v1/entries <- link stuff
 
 function forceRefreshGraph() {
-    if (refreshGraphFunc) {
-        refreshGraphFunc();
+    try {
+        const msg = { type: 'refreshGraph' };
+        const maybePromise = extAPI.runtime && extAPI.runtime.sendMessage ? extAPI.runtime.sendMessage(msg) : null;
+        if (maybePromise && typeof maybePromise.then === 'function') {
+            // Firefox/webextension style returns a Promise
+            maybePromise.catch(() => {});
+        }
+        // In Chrome MV2 style, errors are surfaced via runtime.lastError in a callback,
+        // but since we don't pass a callback, we can safely ignore when no receiver exists.
+    } catch (e) {
+        // Swallow errors when no receiving end (popup closed) or other benign issues
+        // console.debug('forceRefreshGraph skipped:', e);
     }
 }
 
+// Kept for backward compatibility; no longer stores a cross-context callback
 function setGraphFunction(callbackFunction) {
-    refreshGraphFunc = callbackFunction;
+    // Deprecated: background no longer stores popup callbacks to avoid dead-object issues.
+    refreshGraphFunc = null;
 }
 
 function notifClear(id) {
@@ -672,7 +684,7 @@ function alarmProfileFunction2(alarmTempArray, callbackFunc) {
 
 function alarmProfileFunction(alarmTempArray, callbackFunc) {
     //get to see if changed from default site stuff yet;
-    //NOTE: IF PROFILE URL SAVED VALUE IS DIFFERENT, RESET THE VALUESS OF gottenProfileAlarms!
+    //NOTE: IF PROFILE URL SAVED VARIABLE IS DIFFERENT, RESET THE VALUESS OF gottenProfileAlarms!
     // this will ALSO handle profile url stuff.
     extAPI.storage.local.get(['lastProfileUrl'], function (lastProfileURLResult) {
         var profileUrlValue = Object.values(lastProfileURLResult)[0];

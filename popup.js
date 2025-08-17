@@ -16,6 +16,21 @@ var globalOldNumber;
 var globalTheme;
 var globalUnit;
 
+// Listen for background-triggered refreshes safely via messaging
+if (extAPI && extAPI.runtime && extAPI.runtime.onMessage) {
+    extAPI.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+        if (message && message.type === 'refreshGraph') {
+            try {
+                checkForUpdates();
+            } catch (e) {
+                // ignore if UI not ready
+            }
+        }
+        // No async response
+        return false;
+    });
+}
+
 function arrowValues(direction) {
     var baseUrl = "arrows/"
     var extension = ""
@@ -98,7 +113,7 @@ function convertDateNoSpace(dateObject) {
     if (h > 12) {
         h = h - 12
         ampm = "PM"
-    } else if (h == 00) {
+    } else if (h === 0) {
         h = 12
         //ampm = "PM"
     }
@@ -122,7 +137,7 @@ function convertDateFinal(dateObject) {
         if (h > 12) {
             h = Number(h) - 12
             ampm = "PM"
-        } else if (h == 00) {
+        } else if (h === 0) {
             h = 12
             //ampm = "PM"
         }
@@ -219,7 +234,7 @@ function createDot(dotData, dataAmount, [bottomValue, topValue], previousDot, fi
     var dotTopValue = 4;
     //VARIABLES
     var date = dotData["date"];
-    var dateString = dotData["dateString"];
+    // removed use of dotData["dateString"] to avoid Invalid Date issues
     var sgv = dotData["sgv"];
     //var delta = indivString["delta"]; delta value is NOT needed EXCEPT for the first value!
     var preconversionSgv = sgv;
@@ -295,7 +310,8 @@ function createDot(dotData, dataAmount, [bottomValue, topValue], previousDot, fi
     }
     newDot.style.backgroundColor = dotColor;
     //MOUSEOVER FUNCTION
-    mouseOverFunction(newDot, sgv, dateString);
+    // pass numeric date to avoid NaN in time formatting
+    mouseOverFunction(newDot, sgv, date);
     //JS CANVAS DOT FUNCTION
     var c = document.getElementsByClassName("canvasObject")[0];
     var ctx = c.getContext("2d");
@@ -394,7 +410,7 @@ function firstDot(dotData, nextDotData) {
     var sgv = dotData["sgv"];
     var previousSgv = nextDotData["sgv"];
     var direction = dotData["direction"];
-    var dateString = dotData["dateString"];
+    var date = dotData["date"]; // use numeric date consistently
     var delta = dotData["delta"];
     //ALARM VARIABLES
     var lowValueTemp = lowValue[0];
@@ -418,9 +434,9 @@ function firstDot(dotData, nextDotData) {
         delta = calculateDelta;
     }
     //SET DATES ON POPUP
-    convertDate(dateString);
-    //document.getElementById("date2").innerHTML = convertDate(dateString);
-    convertDateFinal(dateString);
+    convertDate(date);
+    //document.getElementById("date2").innerHTML = convertDate(date);
+    convertDateFinal(date);
     //SET MAIN BLOOD SUGAR VALUE AND GET SOME POPUP ELEMENTS
     var mainText = document.getElementsByClassName("mainText");
     var mainTextHolder = document.getElementsByClassName("mainTextHolder");
@@ -944,15 +960,9 @@ function checkColorVariables() {
 //now, make a shitty force refresh function.
 
 window.onload = function () {
-    //this function lets you remotely activate the graph refresh.
-    extAPI.extension.getBackgroundPage().setGraphFunction(function () {
-        //graph has been "force refreshed"
-        try {
-            checkForUpdates();
-        } catch {
-            console.log("Wow.. I guess he didn't like that");
-        }
-    });
+    // Remove registering cross-context callbacks; rely on messaging instead
+    // this function lets you remotely activate the graph refresh.
+    // extAPI.extension.getBackgroundPage().setGraphFunction(...) is deprecated to avoid dead-object issues.
     getHighlightedFromValue();
     checkBSvariables();
     checkColorVariables();
