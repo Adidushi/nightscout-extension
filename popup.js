@@ -909,7 +909,7 @@ for (var i = 0; i < buttons.length; i++) {
 
 //maybe remove this shit?
 function checkBSvariables() {
-    chrome.storage.local.get(['alarmValues'], function(result) {
+    extAPI.storage.local.get(['alarmValues'], function(result) {
         var alarmValues = Object.values(result)
         console.log(alarmValues);
         if (alarmValues) {
@@ -931,7 +931,7 @@ function checkBSvariables() {
 }
 
 function checkColorVariables(){
-	chrome.storage.local.get(['colors'], function(result) {
+	extAPI.storage.local.get(['colors'], function(result) {
 		globalTheme = Object.values(result)[0];
 	});
 }
@@ -939,7 +939,7 @@ function checkColorVariables(){
 
 window.onload = function() {
     //this function lets you remotely activate the graph refresh.
-    chrome.extension.getBackgroundPage().setGraphFunction(function() {
+    extAPI.extension.getBackgroundPage().setGraphFunction(function() {
         //graph has been "force refreshed"
         try {
             checkForUpdates();

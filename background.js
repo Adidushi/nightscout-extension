@@ -72,10 +72,9 @@ function setStorage(obj) {
 }
 function getBytesInUse(keys) {
   return new Promise((resolve, reject) => {
-    extAPI.storage.local.getBytesInUse(keys, bytes => {
-      if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
-      else resolve(bytes);
-    });
+    extAPI.storage.local.get(function(items) {
+    return JSON.stringify(items).length;
+  });
   });
 }
 
