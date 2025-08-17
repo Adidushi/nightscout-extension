@@ -1,5 +1,7 @@
-# nightscout-chrome
+# nightscout-firefox
 
-allows viewing of nightscout data in the chrome extension bar
+allows viewing of nightscout data in the firefox extension bar
 
-https://chrome.google.com/webstore/detail/nightscout-chrome-extensi/hncdmgomjlflmfphembffnaajhfmcjnk
+
+Based on the chrome version by legoandmars:
+https://github.com/legoandmars/nightscout-chrome
