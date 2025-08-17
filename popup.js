@@ -111,7 +111,7 @@ function convertDateNoSpace(dateObject) {
 
 
 function convertDateFinal(dateObject) {
-    extAPI.storage.local.get(['dataAmount'], function(result) {
+    extAPI.storage.local.get(['dataAmount'], function (result) {
         var getNumber = Object.values(result);
         var convertedDate = new Date(dateObject);
         convertedDate.setMinutes(convertedDate.getMinutes() - ((Number(getNumber) * 5) - 5));
@@ -132,49 +132,49 @@ function convertDateFinal(dateObject) {
         var dateString = h + ":" + m// + " " + ampm;
         //return dateString;
         //document.getElementById("date1").innerHTML = dateString;
-		var dateObjs = document.getElementsByClassName('dateHolderNew');
-		var whiteLineObjs = document.getElementsByClassName('whiteLineNew');
-		var wideLineObjs = document.getElementsByClassName('whiteLineWide');
-		while(dateObjs[0]){
-		    dateObjs[0].parentNode.removeChild(dateObjs[0])
-		}
-		while(whiteLineObjs[0]){
-		    whiteLineObjs[0].parentNode.removeChild(whiteLineObjs[0])
-		}
-		while(wideLineObjs[0]){
-		    wideLineObjs[0].parentNode.removeChild(wideLineObjs[0])
-		}
-		var lineAddition = 2;
-		//FIRST, do white line stuff!
-		var whiteLine = document.createElement("div");
-		whiteLine.className = "whiteLineNew";
-		whiteLine.style.left = 0+lineAddition+"px";
-		document.getElementsByClassName("chartBackground")[0].appendChild(whiteLine);
-		//NOW DO WIDE LINE STUFF!
-		var wideLine = document.createElement("div");
-		wideLine.className = "whiteLineWide";
-		wideLine.style.left = 0+lineAddition+"px";
-		document.getElementsByClassName("chartBackground")[0].appendChild(wideLine);
-		//do MORE white line stuff.
-		var whiteLine2 = document.createElement("div");
-		whiteLine2.className = "whiteLineNew";
-		whiteLine2.style.left = 19+lineAddition+"px";
-		whiteLine2.style.top = 161+"px"
-		document.getElementsByClassName("chartBackground")[0].appendChild(whiteLine2);
-		//DATE STUFF!
-		var dateClone = document.createElement("div");
-		dateClone.className = "dateHolderNew";
-		//dateClone.id = "uniqueDateHolder";
-		dateClone.style.left = 0+"px";
-		var textClone1 = document.createElement("p");
-		var textClone2 = document.createElement("p");
-		textClone1.className = "dateMarkersNew";
-		textClone2.className = "dateMarkersNew";
-		textClone1.innerHTML = dateString;
-		textClone2.innerHTML = ampm;
-		dateClone.appendChild(textClone1);
-		dateClone.appendChild(textClone2);
-		document.getElementsByClassName("chartBackground")[0].appendChild(dateClone);
+        var dateObjs = document.getElementsByClassName('dateHolderNew');
+        var whiteLineObjs = document.getElementsByClassName('whiteLineNew');
+        var wideLineObjs = document.getElementsByClassName('whiteLineWide');
+        while (dateObjs[0]) {
+            dateObjs[0].parentNode.removeChild(dateObjs[0])
+        }
+        while (whiteLineObjs[0]) {
+            whiteLineObjs[0].parentNode.removeChild(whiteLineObjs[0])
+        }
+        while (wideLineObjs[0]) {
+            wideLineObjs[0].parentNode.removeChild(wideLineObjs[0])
+        }
+        var lineAddition = 2;
+        //FIRST, do white line stuff!
+        var whiteLine = document.createElement("div");
+        whiteLine.className = "whiteLineNew";
+        whiteLine.style.left = 0 + lineAddition + "px";
+        document.getElementsByClassName("chartBackground")[0].appendChild(whiteLine);
+        //NOW DO WIDE LINE STUFF!
+        var wideLine = document.createElement("div");
+        wideLine.className = "whiteLineWide";
+        wideLine.style.left = 0 + lineAddition + "px";
+        document.getElementsByClassName("chartBackground")[0].appendChild(wideLine);
+        //do MORE white line stuff.
+        var whiteLine2 = document.createElement("div");
+        whiteLine2.className = "whiteLineNew";
+        whiteLine2.style.left = 19 + lineAddition + "px";
+        whiteLine2.style.top = 161 + "px"
+        document.getElementsByClassName("chartBackground")[0].appendChild(whiteLine2);
+        //DATE STUFF!
+        var dateClone = document.createElement("div");
+        dateClone.className = "dateHolderNew";
+        //dateClone.id = "uniqueDateHolder";
+        dateClone.style.left = 0 + "px";
+        var textClone1 = document.createElement("p");
+        var textClone2 = document.createElement("p");
+        textClone1.className = "dateMarkersNew";
+        textClone2.className = "dateMarkersNew";
+        textClone1.innerHTML = dateString;
+        textClone2.innerHTML = ampm;
+        dateClone.appendChild(textClone1);
+        dateClone.appendChild(textClone2);
+        document.getElementsByClassName("chartBackground")[0].appendChild(dateClone);
     });
 }
 
@@ -189,11 +189,11 @@ function mgdlToMMOL(mgdlVal) {
     return (tempMmolFinal);
 }
 
-function mouseOverFunction(dotObject, bsValue, timeValue){
-	var timeText = document.getElementsByClassName("mouseOverTimeValue")[0];
+function mouseOverFunction(dotObject, bsValue, timeValue) {
+    var timeText = document.getElementsByClassName("mouseOverTimeValue")[0];
     var bsText = document.getElementsByClassName("mouseOverBGV")[0];
     var mainTooltip = document.getElementsByClassName("mouseOverDiv")[0];
-    dotObject.onmouseover = function() {
+    dotObject.onmouseover = function () {
         //alert("OVER");
         timeText.innerHTML = convertDateNoSpace(timeValue);
         bsText.innerHTML = "BG: " + bsValue;
@@ -207,37 +207,37 @@ function mouseOverFunction(dotObject, bsValue, timeValue){
         mainTooltip.style.top = (topPreCalc) + "px";
         mainTooltip.style.visibility = "visible"
     };
-    dotObject.onmouseout = function() {
+    dotObject.onmouseout = function () {
         mainTooltip.style.visibility = "hidden";
     }
 }
-function createDot(dotData,dataAmount,[bottomValue,topValue],previousDot,finalDot,totalGraph){
-	//TODO: ADD MMOL SUPPORT TO EVERYTHING!!!
-	//bottomValue = 40;
-	//topValue = 400;
-	var dotBottomValue = 154;
-	var dotTopValue = 4;
-	//VARIABLES
-	var date = dotData["date"];
-	var dateString = dotData["dateString"];
-	var sgv = dotData["sgv"];
-	//var delta = indivString["delta"]; delta value is NOT needed EXCEPT for the first value!
-	var preconversionSgv = sgv;
-	//ALARM VARIABLES
+
+function createDot(dotData, dataAmount, [bottomValue, topValue], previousDot, finalDot, totalGraph) {
+    //bottomValue = 40;
+    //topValue = 400;
+    var dotBottomValue = 154;
+    var dotTopValue = 4;
+    //VARIABLES
+    var date = dotData["date"];
+    var dateString = dotData["dateString"];
+    var sgv = dotData["sgv"];
+    //var delta = indivString["delta"]; delta value is NOT needed EXCEPT for the first value!
+    var preconversionSgv = sgv;
+    //ALARM VARIABLES
     var lowValueTemp = lowValue[0];
-	var urgentLowValueTemp = urgentLowValue[0];
-	var urgentHighValueTemp = urgentHighValue[0];
+    var urgentLowValueTemp = urgentLowValue[0];
+    var urgentHighValueTemp = urgentHighValue[0];
     var highValueTemp = highValue[0];
-	//MMOL FUNCTIONS HERE!
-	if (globalUnit == "mmol") {
-	    sgv = mgdlToMMOL(sgv);
-	    lowValueTemp = mgdlToMMOL(lowValueTemp);
+    //MMOL FUNCTIONS HERE!
+    if (globalUnit == "mmol") {
+        sgv = mgdlToMMOL(sgv);
+        lowValueTemp = mgdlToMMOL(lowValueTemp);
         urgentLowValueTemp = mgdlToMMOL(urgentLowValueTemp);
         urgentHighValueTemp = mgdlToMMOL(urgentHighValueTemp);
         highValueTemp = mgdlToMMOL(highValueTemp);
-	}
-	//CREATE NEW DOT, SET POSITION AND PARENT
-	var newDot = document.createElement("div");
+    }
+    //CREATE NEW DOT, SET POSITION AND PARENT
+    var newDot = document.createElement("div");
     newDot.className = "dot";
     document.getElementsByClassName("innerChart")[0].appendChild(newDot);
     //in this example, the lowest will be 40 and highest will be 400. set correctly.
@@ -248,177 +248,177 @@ function createDot(dotData,dataAmount,[bottomValue,topValue],previousDot,finalDo
     //switch bg values. max = min and min = max.
     //first, calculate left value from timestamp.
     var originalTimestamp = totalGraph[0]["date"];
-    var newTimestampDifference = originalTimestamp-date;
-    var newRounded = Math.round(newTimestampDifference/300000);
+    var newTimestampDifference = originalTimestamp - date;
+    var newRounded = Math.round(newTimestampDifference / 300000);
     //console.log(newRounded+" IS ROUNDED ONE");
-    var diff1 = (topValue-bottomValue)/(dotBottomValue-dotTopValue);
-    var newDotCalcNum = 4 + ((topValue-sgv)/diff1);
-	newDot.style.top = newDotCalcNum+"px";
+    var diff1 = (topValue - bottomValue) / (dotBottomValue - dotTopValue);
+    var newDotCalcNum = 4 + ((topValue - sgv) / diff1);
+    newDot.style.top = newDotCalcNum + "px";
     newDot.style.left = 258 - (newRounded * (258 / (dataAmount - 1))) + "px";
     //halfhour = 7
     //two hour = 25
     //six hour = 73;
     //twelve hour = 145;
     //24 hour = 289
-    newDot.style.opacity=0;
+    newDot.style.opacity = 0;
     var canvasDotWidth;
-    if(dataAmount== 7){
-    	canvasDotWidth = 3;
-    }else if(dataAmount==25){
-    	//2 hr value.
-    	canvasDotWidth = 1;
-	}else if(dataAmount>25){
-    	//although this looks visually better, it makes the "hitbox" of the dots smaller, making it significantly harder to mouse over. perhaps look into this more later.
-    	canvasDotWidth = .25;
-    	//newDot.style.opacity=0;
-    	//newDot.style.width = 2+"px";
-    	//newDot.style.height = 2+"px";
-    	//newDot.style.left = ((258 - (i * (258 / (dataAmount - 1))))+2) + "px";
-    	//newDot.style.top = (newDotCalcNum+2)+"px";
-    }else{
-    	//smaller or = to two hour.
+    if (dataAmount == 7) {
+        canvasDotWidth = 3;
+    } else if (dataAmount == 25) {
+        //2 hr value.
+        canvasDotWidth = 1;
+    } else if (dataAmount > 25) {
+        //although this looks visually better, it makes the "hitbox" of the dots smaller, making it significantly harder to mouse over. perhaps look into this more later.
+        canvasDotWidth = .25;
+        //newDot.style.opacity=0;
+        //newDot.style.width = 2+"px";
+        //newDot.style.height = 2+"px";
+        //newDot.style.left = ((258 - (i * (258 / (dataAmount - 1))))+2) + "px";
+        //newDot.style.top = (newDotCalcNum+2)+"px";
+    } else {
+        //smaller or = to two hour.
     }
-   // var dotSize = 5;
+    // var dotSize = 5;
     //newDot.style.height = dotSize+"px";
     //newDot.style.width = dotSize+"px";
     //ADD CHECK FOR SGV LATER
     //SET DOT COLOR BASED ON STORED COLOR VALUES
     dotColor = "#bbb"
-    if(globalTheme == "colors"){
-	    if(Number(sgv) >= urgentHighValueTemp || Number(sgv) <= urgentLowValueTemp){
-	    	dotColor = "red";
-	    }else if(Number(sgv) >= highValueTemp || Number(sgv) <= lowValueTemp){
-	    	dotColor = "yellow";
-	    }else{
-	    	dotColor = "#4CFF00";
-	    }
+    if (globalTheme == "colors") {
+        if (Number(sgv) >= urgentHighValueTemp || Number(sgv) <= urgentLowValueTemp) {
+            dotColor = "red";
+        } else if (Number(sgv) >= highValueTemp || Number(sgv) <= lowValueTemp) {
+            dotColor = "yellow";
+        } else {
+            dotColor = "#4CFF00";
+        }
     }
     newDot.style.backgroundColor = dotColor;
     //MOUSEOVER FUNCTION
-	mouseOverFunction(newDot, sgv, dateString);
-	//JS CANVAS DOT FUNCTION
-	var c=document.getElementsByClassName("canvasObject")[0];
-	var ctx=c.getContext("2d");
-	//NEW CANVAS DOT POSITION VARIABLES
-	var dotTopValue = 3;
-	var dotBottomValue = 140;
-	var diff1 = (topValue-bottomValue)/(dotBottomValue-dotTopValue);
-	var newDotCalcNum = 3 + ((topValue-sgv)/diff1);
+    mouseOverFunction(newDot, sgv, dateString);
+    //JS CANVAS DOT FUNCTION
+    var c = document.getElementsByClassName("canvasObject")[0];
+    var ctx = c.getContext("2d");
+    //NEW CANVAS DOT POSITION VARIABLES
+    var dotTopValue = 3;
+    var dotBottomValue = 140;
+    var diff1 = (topValue - bottomValue) / (dotBottomValue - dotTopValue);
+    var newDotCalcNum = 3 + ((topValue - sgv) / diff1);
 
-	var firstTop = newDotCalcNum;
-	var firstLeft = 269 - (newRounded * (269 / (dataAmount - 1)))
-	//LINE FUNCTION
-	if(previousDot != "dne"){
-		//this is NOT a first dot. CREATE A LINE!
-		var secondDotSGV = previousDot["sgv"];
-		if(secondDotSGV){
-			var previousDotDate = previousDot["date"];
-    		var previousTimestampDifference = previousDotDate-date;
-    		var previousRounded = Math.round(previousTimestampDifference/300000);
-    		if(previousRounded==1){
-				if(globalUnit=="mmol"){
-					secondDotSGV = mgdlToMMOL(secondDotSGV);
-				}
-				var newDotCalcNum2 = 3 + ((topValue-secondDotSGV)/diff1);
-				//get COLOR of last dot
-				var newDotColor = "#bbb"
-			    if(globalTheme == "colors"){
-				    if(Number(secondDotSGV) >= urgentHighValueTemp || Number(secondDotSGV) <= urgentLowValueTemp){
-				    	newDotColor = "red";
-				    }else if(Number(secondDotSGV) >= highValueTemp || Number(secondDotSGV) <= lowValueTemp){
-				    	newDotColor = "yellow";
-				    }else{
-				    	newDotColor = "#4CFF00";
-				    }
-			    }
-				//CALCULATE
-				var nextTop = newDotCalcNum2;
-				var nextLeft = 269 - ((newRounded-1) * (269 / (dataAmount - 1)))
-				//CREATE GRADIENT
-				if(dotColor == newDotColor){
-					//do nothing. Same color! yay!
-				}else{
-					//create a gradient.
-					try{
-					var newGradient = ctx.createLinearGradient(nextLeft+3, nextTop+3, firstLeft+3, firstTop+3);
-					newGradient.addColorStop(1,dotColor);
-					newGradient.addColorStop(0,newDotColor);
-					ctx.strokeStyle = newGradient;
-					}catch(gradError){
-						console.log(gradError);
-						ctx.strokeStyle = dotColor;
-					}
-				}
-				//DRAW LINE!
-				ctx.lineWidth ="3";
-				ctx.moveTo(nextLeft+3,nextTop+3);
-				ctx.lineTo(firstLeft+3,firstTop+3);
-				ctx.stroke();
-			}
-		}
-	}else{
-		//since there is NOT a previous dot, this is the first dot.
-		//REGARDLESS of settings, make a dot to display the first datapoint.
-		ctx.beginPath(); 
-		ctx.lineWidth="1";
-		ctx.strokeStyle=dotColor; 
-		ctx.fillStyle=dotColor;
-		ctx.beginPath();
-		ctx.arc(firstLeft+3, firstTop+3, 3, 0, 2 * Math.PI);
-		ctx.fill();
-		ctx.stroke();
-	}
-	if (finalDot==true){
-		//final dot. draw regardless of settings for LAST datapoint.
-		ctx.beginPath(); 
-		ctx.lineWidth="1";
-		ctx.strokeStyle=dotColor; 
-		ctx.fillStyle=dotColor;
-		ctx.beginPath();
-		ctx.arc(firstLeft+3, firstTop+3, 3, 0, 2 * Math.PI);
-		ctx.fill();
-		ctx.stroke();
-	}
-	//DOT STUFF!
-	ctx.beginPath(); 
-	ctx.lineWidth="1";
-	ctx.strokeStyle=dotColor; 
-	ctx.fillStyle=dotColor;
-	ctx.beginPath();
-	ctx.arc(firstLeft+3, firstTop+3, canvasDotWidth, 0, 2 * Math.PI);
-	ctx.fill();
-	ctx.stroke();
+    var firstTop = newDotCalcNum;
+    var firstLeft = 269 - (newRounded * (269 / (dataAmount - 1)))
+    //LINE FUNCTION
+    if (previousDot != "dne") {
+        //this is NOT a first dot. CREATE A LINE!
+        var secondDotSGV = previousDot["sgv"];
+        if (secondDotSGV) {
+            var previousDotDate = previousDot["date"];
+            var previousTimestampDifference = previousDotDate - date;
+            var previousRounded = Math.round(previousTimestampDifference / 300000);
+            if (previousRounded == 1) {
+                if (globalUnit == "mmol") {
+                    secondDotSGV = mgdlToMMOL(secondDotSGV);
+                }
+                var newDotCalcNum2 = 3 + ((topValue - secondDotSGV) / diff1);
+                //get COLOR of last dot
+                var newDotColor = "#bbb"
+                if (globalTheme == "colors") {
+                    if (Number(secondDotSGV) >= urgentHighValueTemp || Number(secondDotSGV) <= urgentLowValueTemp) {
+                        newDotColor = "red";
+                    } else if (Number(secondDotSGV) >= highValueTemp || Number(secondDotSGV) <= lowValueTemp) {
+                        newDotColor = "yellow";
+                    } else {
+                        newDotColor = "#4CFF00";
+                    }
+                }
+                //CALCULATE
+                var nextTop = newDotCalcNum2;
+                var nextLeft = 269 - ((newRounded - 1) * (269 / (dataAmount - 1)))
+                //CREATE GRADIENT
+                if (dotColor == newDotColor) {
+                    //do nothing. Same color! yay!
+                } else {
+                    //create a gradient.
+                    try {
+                        var newGradient = ctx.createLinearGradient(nextLeft + 3, nextTop + 3, firstLeft + 3, firstTop + 3);
+                        newGradient.addColorStop(1, dotColor);
+                        newGradient.addColorStop(0, newDotColor);
+                        ctx.strokeStyle = newGradient;
+                    } catch (gradError) {
+                        console.log(gradError);
+                        ctx.strokeStyle = dotColor;
+                    }
+                }
+                //DRAW LINE!
+                ctx.lineWidth = "3";
+                ctx.moveTo(nextLeft + 3, nextTop + 3);
+                ctx.lineTo(firstLeft + 3, firstTop + 3);
+                ctx.stroke();
+            }
+        }
+    } else {
+        //since there is NOT a previous dot, this is the first dot.
+        //REGARDLESS of settings, make a dot to display the first datapoint.
+        ctx.beginPath();
+        ctx.lineWidth = "1";
+        ctx.strokeStyle = dotColor;
+        ctx.fillStyle = dotColor;
+        ctx.beginPath();
+        ctx.arc(firstLeft + 3, firstTop + 3, 3, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+    }
+    if (finalDot == true) {
+        //final dot. draw regardless of settings for LAST datapoint.
+        ctx.beginPath();
+        ctx.lineWidth = "1";
+        ctx.strokeStyle = dotColor;
+        ctx.fillStyle = dotColor;
+        ctx.beginPath();
+        ctx.arc(firstLeft + 3, firstTop + 3, 3, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+    }
+    //DOT STUFF!
+    ctx.beginPath();
+    ctx.lineWidth = "1";
+    ctx.strokeStyle = dotColor;
+    ctx.fillStyle = dotColor;
+    ctx.beginPath();
+    ctx.arc(firstLeft + 3, firstTop + 3, canvasDotWidth, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
 }
 
-function firstDot(dotData,nextDotData){
-	var sgv = dotData["sgv"];
-	var previousSgv = nextDotData["sgv"];
-	var direction = dotData["direction"];
-	var dateString = dotData["dateString"];
-	var delta = dotData["delta"];
-	//ALARM VARIABLES
+function firstDot(dotData, nextDotData) {
+    var sgv = dotData["sgv"];
+    var previousSgv = nextDotData["sgv"];
+    var direction = dotData["direction"];
+    var dateString = dotData["dateString"];
+    var delta = dotData["delta"];
+    //ALARM VARIABLES
     var lowValueTemp = lowValue[0];
-	var urgentLowValueTemp = urgentLowValue[0];
-	var urgentHighValueTemp = urgentHighValue[0];
+    var urgentLowValueTemp = urgentLowValue[0];
+    var urgentHighValueTemp = urgentHighValue[0];
     var highValueTemp = highValue[0];
-	//MMOL FUNCTIONS HERE!
-	if (globalUnit == "mmol") {
-	    sgv = mgdlToMMOL(sgv);
-	    lowValueTemp = mgdlToMMOL(lowValueTemp);
+    //MMOL FUNCTIONS HERE!
+    if (globalUnit == "mmol") {
+        sgv = mgdlToMMOL(sgv);
+        lowValueTemp = mgdlToMMOL(lowValueTemp);
         urgentLowValueTemp = mgdlToMMOL(urgentLowValueTemp);
         urgentHighValueTemp = mgdlToMMOL(urgentHighValueTemp);
         highValueTemp = mgdlToMMOL(highValueTemp);
         previousSgv = mgdlToMMOL(previousSgv);
-	}
-	//DELTA LOGIC
-	console.log("DELTA IS "+delta);
-	if(Object.values(dotData).indexOf("delta") >= 0 || delta == "undefined" || !delta || delta == null){
-		//delta does not exist. time to calculate manually.
-		var calculateDelta = sgv-previousSgv; 
-		delta = calculateDelta;
-	}
-	//SET DATES ON POPUP
-	convertDate(dateString);
+    }
+    //DELTA LOGIC
+    console.log("DELTA IS " + delta);
+    if (Object.values(dotData).indexOf("delta") >= 0 || delta == "undefined" || !delta || delta == null) {
+        //delta does not exist. time to calculate manually.
+        var calculateDelta = sgv - previousSgv;
+        delta = calculateDelta;
+    }
+    //SET DATES ON POPUP
+    convertDate(dateString);
     //document.getElementById("date2").innerHTML = convertDate(dateString);
     convertDateFinal(dateString);
     //SET MAIN BLOOD SUGAR VALUE AND GET SOME POPUP ELEMENTS
@@ -432,37 +432,37 @@ function firstDot(dotData,nextDotData){
     var backgroundColorVal;
     var textColor;
     //COLOR VALUE LOGIC
-   	if(globalTheme == "colors"){
-		backgroundColorVal = "black";
-    	//mainTextHolder[0].style.borderColor = "black";
-	    if(Number(sgv) >= Number(urgentHighValueTemp) || Number(sgv) <= Number(urgentLowValueTemp)){
-	    	textColor = "red";
-	    	arrowStr = "red";
-	    }else if(Number(sgv) >= Number(highValueTemp) || Number(sgv) <= Number(lowValueTemp)){
-	    	textColor = "yellow";
-	    	arrowStr = "yellow";
-	    }else{
-	    	textColor = "#4CFF00";
-	    	arrowStr = "green";
-	    }
-   	}else{
-   		//assume it's the DEFAULT value (gray)
-	    if (Number(sgv) <= Number(lowValueTemp)) {
-	        backgroundColorVal = "red";
-	        textColor = "black";
-	    } else if (Number(sgv) >= Number(highValueTemp)) {
-	        backgroundColorVal = "#c6a400";
-	        textColor = "black";
-	    } else {
-	        backgroundColorVal = "black";
-	        textColor = "gray";
-	        arrowStr = "gray";
-	    }
-   	}
-   	//SET COLORS OF ELEMENTS
-   	mainTextHolder[0].style.backgroundColor = backgroundColorVal;
-   	mainText[0].style.color = textColor;
-   	//SET ARROW ELEMENT
+    if (globalTheme == "colors") {
+        backgroundColorVal = "black";
+        //mainTextHolder[0].style.borderColor = "black";
+        if (Number(sgv) >= Number(urgentHighValueTemp) || Number(sgv) <= Number(urgentLowValueTemp)) {
+            textColor = "red";
+            arrowStr = "red";
+        } else if (Number(sgv) >= Number(highValueTemp) || Number(sgv) <= Number(lowValueTemp)) {
+            textColor = "yellow";
+            arrowStr = "yellow";
+        } else {
+            textColor = "#4CFF00";
+            arrowStr = "green";
+        }
+    } else {
+        //assume it's the DEFAULT value (gray)
+        if (Number(sgv) <= Number(lowValueTemp)) {
+            backgroundColorVal = "red";
+            textColor = "black";
+        } else if (Number(sgv) >= Number(highValueTemp)) {
+            backgroundColorVal = "#c6a400";
+            textColor = "black";
+        } else {
+            backgroundColorVal = "black";
+            textColor = "gray";
+            arrowStr = "gray";
+        }
+    }
+    //SET COLORS OF ELEMENTS
+    mainTextHolder[0].style.backgroundColor = backgroundColorVal;
+    mainText[0].style.color = textColor;
+    //SET ARROW ELEMENT
     var arrowImage = document.getElementsByClassName("arrowImage");
     arrowImage[0].src = arrowStringVal + arrowStr + ".png";
     //DELTA LOGIC
@@ -490,203 +490,206 @@ function firstDot(dotData,nextDotData){
 
 }
 
-function clearLines(){
-	var lineObjs = document.getElementsByClassName('destroyLine');
-	var textObjs = document.getElementsByClassName('destroyMarkers');
-	while(lineObjs[0] ){
-	    lineObjs[0].parentNode.removeChild(lineObjs[0])
-	}
-	while( textObjs[0] ){
-	    textObjs[0].parentNode.removeChild(textObjs[0])
-	}
+function clearLines() {
+    var lineObjs = document.getElementsByClassName('destroyLine');
+    var textObjs = document.getElementsByClassName('destroyMarkers');
+    while (lineObjs[0]) {
+        lineObjs[0].parentNode.removeChild(lineObjs[0])
+    }
+    while (textObjs[0]) {
+        textObjs[0].parentNode.removeChild(textObjs[0])
+    }
 }
-function createLines(amount,[bottomVal,topVal]){
-	//CLEAR LINES AND SET VARIABLES
-	clearLines();
-	amount = amount -1;
-	var topLine = Number(document.getElementById("linetop").offsetTop);
-	var bottomLine = Number(document.getElementById("linebottom").offsetTop);
-	var differenceBetween = topLine-bottomLine;
-	var differencePer = differenceBetween/amount;
-	//LOOP THROUGH AND GENERATE THE LINES
-	for(var i = 0; i < amount; i++){
-		//CREATE LINE AND SET PROPERTIES
-		var newLinePos = bottomLine+(i*differencePer)
-		var lineClone = document.createElement("div");
-		lineClone.className = "destroyLine";
-		lineClone.style.top = newLinePos+"px";
-		document.getElementsByClassName("lines")[0].appendChild(lineClone);
-	}
-	for(var i = 0; i < amount+1; i++){
-		//CREATE TEXT AND SET PROPERTIES
-		//var bottomVal = 40;
-		//var topVal = 400;
-		var theDifference = topVal-bottomVal;
-		var newLineText = 400-(i*((400-40)/amount));
-		var newLinePos = bottomLine+(i*differencePer)
-		var textClone = document.createElement("p");
-		textClone.className = "destroyMarkers";
-		textClone.style.top = newLinePos-(17/2)+"px";
-		textClone.innerHTML = bottomVal + (theDifference/(amount))*i;
-		document.getElementsByClassName("chartBackground")[0].appendChild(textClone);
-	}
+
+function createLines(amount, [bottomVal, topVal]) {
+    //CLEAR LINES AND SET VARIABLES
+    clearLines();
+    amount = amount - 1;
+    var topLine = Number(document.getElementById("linetop").offsetTop);
+    var bottomLine = Number(document.getElementById("linebottom").offsetTop);
+    var differenceBetween = topLine - bottomLine;
+    var differencePer = differenceBetween / amount;
+    //LOOP THROUGH AND GENERATE THE LINES
+    for (var i = 0; i < amount; i++) {
+        //CREATE LINE AND SET PROPERTIES
+        var newLinePos = bottomLine + (i * differencePer)
+        var lineClone = document.createElement("div");
+        lineClone.className = "destroyLine";
+        lineClone.style.top = newLinePos + "px";
+        document.getElementsByClassName("lines")[0].appendChild(lineClone);
+    }
+    for (var i = 0; i < amount + 1; i++) {
+        //CREATE TEXT AND SET PROPERTIES
+        //var bottomVal = 40;
+        //var topVal = 400;
+        var theDifference = topVal - bottomVal;
+        var newLineText = 400 - (i * ((400 - 40) / amount));
+        var newLinePos = bottomLine + (i * differencePer)
+        var textClone = document.createElement("p");
+        textClone.className = "destroyMarkers";
+        textClone.style.top = newLinePos - (17 / 2) + "px";
+        textClone.innerHTML = bottomVal + (theDifference / (amount)) * i;
+        document.getElementsByClassName("chartBackground")[0].appendChild(textClone);
+    }
 }
-function intervalLines(topVal,bottomVal,inputInterval,callbackfunc){
-	var testValues = [1,2,5,10,25,50,100]; //mgdl
-	if(globalUnit=="mmol"){
-		//it's mmol. change the values to be more accurate to mmol.
-		testValues = [.05,.1,.25,.50,1,2,2.5,4,5];
-	}
-	//var amountValues = [];
-	var setInterval = "dne";
-	var setNumber = 0;
-	for(var i =0;i<testValues.length;i++){
-		var tempInterval = testValues[i];
-		var newTopValueTemp = Math.ceil(topVal/tempInterval)*tempInterval;
-		var newBottomValueTemp = Math.floor(bottomVal/tempInterval)*tempInterval;
-		var newAmountTemp = newTopValueTemp-newBottomValueTemp;
-		var newAmountCalcTemp = ((newAmountTemp/tempInterval)+1)	
-		if(globalUnit=="mmol"){
-			newTopValueTemp = Math.ceil(mgdlToMMOL(topVal)/tempInterval)*tempInterval;
-			newBottomValueTemp = Math.floor(mgdlToMMOL(bottomVal)/tempInterval)*tempInterval;
-			newAmountTemp = newTopValueTemp-newBottomValueTemp;
-		 	newAmountCalcTemp = ((newAmountTemp/tempInterval)+1)	
-		}
-		//get one CLOSEST to the interval AMOUNT!
-		//amountValues[i] = newAmountCalc;
-		console.log("CALCULATED "+newAmountCalcTemp+" FROM "+tempInterval);
-		if(setInterval == "dne"){
-			//null, just set it.
-			setInterval = newAmountCalcTemp;
-			setNumber = tempInterval;
-		}else{
-			//not null. do math.
-			var mathA = Math.abs(newAmountCalcTemp - inputInterval);
-			var mathB = Math.abs(setInterval - inputInterval);
-			//IF MATH A IS SMALLER, SET IT!
-			console.log("A IS ");
-			console.log(mathA);
-			console.log(mathB);
-			if(mathA > mathB){
-				//
-			}else if(mathA < mathB){
-				//again, do nothing.
-				setInterval = newAmountCalcTemp;
-				setNumber = tempInterval;
-			}else{
-				//they're the same, go with more data.
-				if(newAmountCalcTemp > setInterval){
-					setInterval = newAmountCalcTemp;
-				}
-				//do nothing
-			}
-		}
-	}
-	//round up now
-	console.log("WENT WITH"+setNumber);
-	var newTopValue = Math.ceil(topVal/setNumber)*setNumber;
-	var newBottomValue = Math.floor(bottomVal/setNumber)*setNumber;
-	var newAmount = newTopValue-newBottomValue;
-	var newAmountCalc = ((newAmount/setNumber)+1)	
-	if(globalUnit=="mmol"){
-		newTopValue = Math.ceil(mgdlToMMOL(topVal)/setNumber)*setNumber;
-		newBottomValue = Math.floor(mgdlToMMOL(bottomVal)/setNumber)*setNumber;
-		newAmount = newTopValue-newBottomValue;
-		newAmountCalc = ((newAmount/setNumber)+1)
-	}
-	//console.log("NEW AMOUNT IS "+newAmountCalc)
-	//createLines(newAmountCalc,[newBottomValue,newTopValue]);
-	if(callbackfunc){
-		callbackfunc(newAmountCalc,[newBottomValue,newTopValue]);
-	}
+
+function intervalLines(topVal, bottomVal, inputInterval, callbackfunc) {
+    var testValues = [1, 2, 5, 10, 25, 50, 100]; //mgdl
+    if (globalUnit == "mmol") {
+        //it's mmol. change the values to be more accurate to mmol.
+        testValues = [.05, .1, .25, .50, 1, 2, 2.5, 4, 5];
+    }
+    //var amountValues = [];
+    var setInterval = "dne";
+    var setNumber = 0;
+    for (var i = 0; i < testValues.length; i++) {
+        var tempInterval = testValues[i];
+        var newTopValueTemp = Math.ceil(topVal / tempInterval) * tempInterval;
+        var newBottomValueTemp = Math.floor(bottomVal / tempInterval) * tempInterval;
+        var newAmountTemp = newTopValueTemp - newBottomValueTemp;
+        var newAmountCalcTemp = ((newAmountTemp / tempInterval) + 1)
+        if (globalUnit == "mmol") {
+            newTopValueTemp = Math.ceil(mgdlToMMOL(topVal) / tempInterval) * tempInterval;
+            newBottomValueTemp = Math.floor(mgdlToMMOL(bottomVal) / tempInterval) * tempInterval;
+            newAmountTemp = newTopValueTemp - newBottomValueTemp;
+            newAmountCalcTemp = ((newAmountTemp / tempInterval) + 1)
+        }
+        //get one CLOSEST to the interval AMOUNT!
+        //amountValues[i] = newAmountCalc;
+        console.log("CALCULATED " + newAmountCalcTemp + " FROM " + tempInterval);
+        if (setInterval == "dne") {
+            //null, just set it.
+            setInterval = newAmountCalcTemp;
+            setNumber = tempInterval;
+        } else {
+            //not null. do math.
+            var mathA = Math.abs(newAmountCalcTemp - inputInterval);
+            var mathB = Math.abs(setInterval - inputInterval);
+            //IF MATH A IS SMALLER, SET IT!
+            console.log("A IS ");
+            console.log(mathA);
+            console.log(mathB);
+            if (mathA > mathB) {
+                //
+            } else if (mathA < mathB) {
+                //again, do nothing.
+                setInterval = newAmountCalcTemp;
+                setNumber = tempInterval;
+            } else {
+                //they're the same, go with more data.
+                if (newAmountCalcTemp > setInterval) {
+                    setInterval = newAmountCalcTemp;
+                }
+                //do nothing
+            }
+        }
+    }
+    //round up now
+    console.log("WENT WITH" + setNumber);
+    var newTopValue = Math.ceil(topVal / setNumber) * setNumber;
+    var newBottomValue = Math.floor(bottomVal / setNumber) * setNumber;
+    var newAmount = newTopValue - newBottomValue;
+    var newAmountCalc = ((newAmount / setNumber) + 1)
+    if (globalUnit == "mmol") {
+        newTopValue = Math.ceil(mgdlToMMOL(topVal) / setNumber) * setNumber;
+        newBottomValue = Math.floor(mgdlToMMOL(bottomVal) / setNumber) * setNumber;
+        newAmount = newTopValue - newBottomValue;
+        newAmountCalc = ((newAmount / setNumber) + 1)
+    }
+    //console.log("NEW AMOUNT IS "+newAmountCalc)
+    //createLines(newAmountCalc,[newBottomValue,newTopValue]);
+    if (callbackfunc) {
+        callbackfunc(newAmountCalc, [newBottomValue, newTopValue]);
+    }
 }
-function createGraph(dataParsed,dataAmount){
-	var c=document.getElementsByClassName("canvasObject")[0];
-	var ctx=c.getContext("2d");
-	ctx.clearRect(0, 0, c.width, c.height);
-	//BEFORE we create the graph, we should get some simple data.
-	var lowestGraphNum = null;
-	var highestGraphNum = null;
-	var marginOfError = .20;
-	var actualTotal = 0;
-	var actualGraphTable = [];
-	var hitLimitYet = false;
-	for(i=0;i<289&&hitLimitYet==false;i++){
-		if(Object.values(dataParsed[i]).indexOf("sgv") >= 0){
-			if(dataAmount == actualGraphTable.length){
-				console.log("WE HIT THE LIMIT");
-				hitLimitYet=true;
-			}else{
-				//add checking for date.
-				if(i>0){
-					var tempDate = dataParsed[i]["date"];
-					var oldDate = dataParsed[0]["date"];
-   			 		var newTimestampDifference = oldDate-tempDate;
-    				var newRounded = Math.round(newTimestampDifference/300000);
-    				//console.log("NEW ROUNDED IS "+newRounded);
-    				if(newRounded>=dataAmount){
-    					//too much data. break.
-    					console.log("TOO MUCH DATA");
-    					hitLimitYet=true;
-    					break
-    				}
-    				//console.log("NEW ROUNDED IS "+newRounded);
-				}
-				//sgv exists. add to new table.
-				actualGraphTable.push(dataParsed[i]);
-				var tempSGV = dataParsed[i]["sgv"];
-				actualTotal++;
-				if(Number(tempSGV) < lowestGraphNum || lowestGraphNum == null){
-					lowestGraphNum = Number(tempSGV);
-				}
-				if(Number(tempSGV) > highestGraphNum || highestGraphNum == null){
-					highestGraphNum = Number(tempSGV);
-				}
-			}
-		}else{
-			//not a proper datapoint. could be used for a NON-bg data point, however.
-			//console.log("BAD DATA");
-			//insert an EMPTY datapoint.
-		}
-	}
-	//
-	console.log(actualGraphTable.length)
-	console.log(actualTotal);
-	console.log("THESE ARE BETTER");
-	var graphDiff = (highestGraphNum-lowestGraphNum); 
-	//lowestGraphNum=lowestGraphNum-(graphDiff*marginOfError);
-	//highestGraphNum=highestGraphNum+(graphDiff*marginOfError);
-	console.log("LOWEST IS "+lowestGraphNum);
-	console.log("HIGHEST IS "+highestGraphNum);
-	//createLines(5,[lowestGraphNum,highestGraphNum],25)
-	intervalLines(highestGraphNum,lowestGraphNum,5,
-	function(newAmountCalc,[newBottomValue,newTopValue]){
-		createLines(newAmountCalc,[newBottomValue,newTopValue]);
-		for (i = 0; i < dataAmount; i++) {
-			var firstValue = false;
-			var indivString = actualGraphTable[i];
-			if (i == 0) {
-				firstDot(actualGraphTable[i],actualGraphTable[i+1]);
-			    firstValue = true;
-			}
-			if(indivString){
-				var isLastDot = false;
-				if(i==(actualGraphTable.length-1)){
-					isLastDot = true;
-				}
-				createDot(indivString,dataAmount,[newBottomValue,newTopValue],actualGraphTable[i-1] || "dne",isLastDot,actualGraphTable);
-			}
-		}
-	});
-       
+
+function createGraph(dataParsed, dataAmount) {
+    var c = document.getElementsByClassName("canvasObject")[0];
+    var ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, c.width, c.height);
+    //BEFORE we create the graph, we should get some simple data.
+    var lowestGraphNum = null;
+    var highestGraphNum = null;
+    var marginOfError = .20;
+    var actualTotal = 0;
+    var actualGraphTable = [];
+    var hitLimitYet = false;
+    for (i = 0; i < 289 && hitLimitYet == false; i++) {
+        if (Object.values(dataParsed[i]).indexOf("sgv") >= 0) {
+            if (dataAmount == actualGraphTable.length) {
+                console.log("WE HIT THE LIMIT");
+                hitLimitYet = true;
+            } else {
+                //add checking for date.
+                if (i > 0) {
+                    var tempDate = dataParsed[i]["date"];
+                    var oldDate = dataParsed[0]["date"];
+                    var newTimestampDifference = oldDate - tempDate;
+                    var newRounded = Math.round(newTimestampDifference / 300000);
+                    //console.log("NEW ROUNDED IS "+newRounded);
+                    if (newRounded >= dataAmount) {
+                        //too much data. break.
+                        console.log("TOO MUCH DATA");
+                        hitLimitYet = true;
+                        break
+                    }
+                    //console.log("NEW ROUNDED IS "+newRounded);
+                }
+                //sgv exists. add to new table.
+                actualGraphTable.push(dataParsed[i]);
+                var tempSGV = dataParsed[i]["sgv"];
+                actualTotal++;
+                if (Number(tempSGV) < lowestGraphNum || lowestGraphNum == null) {
+                    lowestGraphNum = Number(tempSGV);
+                }
+                if (Number(tempSGV) > highestGraphNum || highestGraphNum == null) {
+                    highestGraphNum = Number(tempSGV);
+                }
+            }
+        } else {
+            //not a proper datapoint. could be used for a NON-bg data point, however.
+            //console.log("BAD DATA");
+            //insert an EMPTY datapoint.
+        }
+    }
+    //
+    console.log(actualGraphTable.length)
+    console.log(actualTotal);
+    console.log("THESE ARE BETTER");
+    var graphDiff = (highestGraphNum - lowestGraphNum);
+    //lowestGraphNum=lowestGraphNum-(graphDiff*marginOfError);
+    //highestGraphNum=highestGraphNum+(graphDiff*marginOfError);
+    console.log("LOWEST IS " + lowestGraphNum);
+    console.log("HIGHEST IS " + highestGraphNum);
+    //createLines(5,[lowestGraphNum,highestGraphNum],25)
+    intervalLines(highestGraphNum, lowestGraphNum, 5,
+        function (newAmountCalc, [newBottomValue, newTopValue]) {
+            createLines(newAmountCalc, [newBottomValue, newTopValue]);
+            for (i = 0; i < dataAmount; i++) {
+                var firstValue = false;
+                var indivString = actualGraphTable[i];
+                if (i == 0) {
+                    firstDot(actualGraphTable[i], actualGraphTable[i + 1]);
+                    firstValue = true;
+                }
+                if (indivString) {
+                    var isLastDot = false;
+                    if (i == (actualGraphTable.length - 1)) {
+                        isLastDot = true;
+                    }
+                    createDot(indivString, dataAmount, [newBottomValue, newTopValue], actualGraphTable[i - 1] || "dne", isLastDot, actualGraphTable);
+                }
+            }
+        });
+
 }
 
 function parseData(response) {
     //make sure to double check alarm values first of all!
     if (response != "dne") {
         //there is a response. now get unit type.
-        extAPI.storage.local.get(['unitValue'], function(unitResult) {
-            extAPI.storage.local.get(['dataAmount'], function(dataResult) {
+        extAPI.storage.local.get(['unitValue'], function (unitResult) {
+            extAPI.storage.local.get(['dataAmount'], function (dataResult) {
                 var unitType = Object.values(unitResult)[0];
                 var dataAmount = Number(Object.values(dataResult)[0]);
                 document.getElementsByClassName("errorText")[0].innerHTML = ""
@@ -696,8 +699,8 @@ function parseData(response) {
                 //console.log("LENGTH IS " + parsed.length);
                 console.log("PARSING DATA NOW!");
                 globalUnit = unitType;
-                createGraph(parsed,dataAmount);
-       		});
+                createGraph(parsed, dataAmount);
+            });
         });
     } else if (response == "dne") {
         //no data yet!
@@ -719,46 +722,47 @@ function unitToProperString(unitType) {
 }
 
 function checkForUpdates() {
-    extAPI.storage.local.get(['bsTable'], function(exportedData) {
-        extAPI.storage.local.get(['dataAmount'], function(dataResult) {
-	        var convertedData = Object.values(exportedData);
-	        var dataAmount = Number(Object.values(dataResult)[0]);
-	        if (JSON.stringify(convertedData) == JSON.stringify(globalOldData) && dataAmount == globalOldNumber) {
-	            //do nothing, data is same.
-	            console.log("DATA IS NOT UPDATED.")
-	        } else {
-	            //we did it! update!
-	            globalOldData = convertedData;
-	            console.log("BEEN UPDATED");
-	            var dots = document.getElementsByClassName('dot');
+    extAPI.storage.local.get(['bsTable'], function (exportedData) {
+        extAPI.storage.local.get(['dataAmount'], function (dataResult) {
+            var convertedData = Object.values(exportedData);
+            var dataAmount = Number(Object.values(dataResult)[0]);
+            if (JSON.stringify(convertedData) == JSON.stringify(globalOldData) && dataAmount == globalOldNumber) {
+                //do nothing, data is same.
+                console.log("DATA IS NOT UPDATED.")
+            } else {
+                //we did it! update!
+                globalOldData = convertedData;
+                console.log("BEEN UPDATED");
+                var dots = document.getElementsByClassName('dot');
 
-	            while (dots[0]) {
-	                dots[0].parentNode.removeChild(dots[0]);
-	            }
-	            console.log("REMOVED ALL DOTS");
-	            //alert("DATA BEEN UPDATED FOO");
-	            parseData(convertedData);
-	        }
-    	});
+                while (dots[0]) {
+                    dots[0].parentNode.removeChild(dots[0]);
+                }
+                console.log("REMOVED ALL DOTS");
+                //alert("DATA BEEN UPDATED FOO");
+                parseData(convertedData);
+            }
+        });
     });
 }
 
 // Promisified wrappers for extAPI.storage.local.get/set
 function getStorage(key) {
-  return new Promise((resolve, reject) => {
-    extAPI.storage.local.get(key, result => {
-      if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
-      else resolve(result);
+    return new Promise((resolve, reject) => {
+        extAPI.storage.local.get(key, result => {
+            if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
+            else resolve(result);
+        });
     });
-  });
 }
+
 function setStorage(obj) {
-  return new Promise((resolve, reject) => {
-    extAPI.storage.local.set(obj, () => {
-      if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
-      else resolve();
+    return new Promise((resolve, reject) => {
+        extAPI.storage.local.set(obj, () => {
+            if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
+            else resolve();
+        });
     });
-  });
 }
 
 function setButtons(button) {
@@ -776,7 +780,7 @@ function setButtons(button) {
 }
 
 function getHighlightedFromValue() {
-    extAPI.storage.local.get(['dataAmount'], function(exportedData) {
+    extAPI.storage.local.get(['dataAmount'], function (exportedData) {
         var exportedNumber = Number(Object.values(exportedData));
         console.log(exportedNumber)
         var idString;
@@ -820,8 +824,8 @@ function manipulateURL(urlObj) {
     //check if it starts with https/http and manipulate accordingly
     if (siteUrlBase.startsWith("https://")) {
         //it starts with https/http, we should be good.
-    } else if (siteUrlBase.startsWith("http://")){
-        siteUrlBase = siteUrlBase.replace("http://", "https://") 
+    } else if (siteUrlBase.startsWith("http://")) {
+        siteUrlBase = siteUrlBase.replace("http://", "https://")
         // force https 
     } else {
         //no http, add to string.
@@ -842,7 +846,7 @@ function manipulateURL(urlObj) {
 
 function buttonClickFunc(button) {
     if (button.className != "gear" && button.className != "nightscoutButton") {
-        button.onclick = function() {
+        button.onclick = function () {
             //alert(button.id);
             var exportNumber;
             switch (button.id) {
@@ -864,13 +868,13 @@ function buttonClickFunc(button) {
             }
             extAPI.storage.local.set({
                 dataAmount: exportNumber
-            }, function() {
+            }, function () {
                 console.log('Amount of data has been set to ' + exportNumber);
                 console.log('now, forcing load.')
                 //chrome.extension.getBackgroundPage().webRequest(function() {
-                    //data saving is done - it has returned!
-                    checkForUpdates();
-                    //force refresh graph;
+                //data saving is done - it has returned!
+                checkForUpdates();
+                //force refresh graph;
                 //});
                 getHighlightedFromValue();
                 //setTimeout(getHighlightedFromValue(), 100);
@@ -881,7 +885,7 @@ function buttonClickFunc(button) {
             button.blur();
         };
     } else if (button.className == "gear") {
-        button.onclick = function() {
+        button.onclick = function () {
             console.log("HOLY COG BATMAN");
             button.blur();
             window.location.href = "settings/settings.html";
@@ -891,8 +895,8 @@ function buttonClickFunc(button) {
         };
     } else if (button.className == "nightscoutButton") {
         //do stuf here
-        button.onclick = function() {
-            extAPI.storage.local.get(['siteUrl'], function(siteData) {
+        button.onclick = function () {
+            extAPI.storage.local.get(['siteUrl'], function (siteData) {
                 var siteUrlBase = manipulateURL(siteData);
                 extAPI.tabs.create({
                     'url': siteUrlBase
@@ -901,6 +905,7 @@ function buttonClickFunc(button) {
         };
     }
 }
+
 var buttons = document.getElementsByTagName('button');
 for (var i = 0; i < buttons.length; i++) {
     var button = buttons[i];
@@ -909,7 +914,7 @@ for (var i = 0; i < buttons.length; i++) {
 
 //maybe remove this shit?
 function checkBSvariables() {
-    extAPI.storage.local.get(['alarmValues'], function(result) {
+    extAPI.storage.local.get(['alarmValues'], function (result) {
         var alarmValues = Object.values(result)
         console.log(alarmValues);
         if (alarmValues) {
@@ -930,16 +935,17 @@ function checkBSvariables() {
     });
 }
 
-function checkColorVariables(){
-	extAPI.storage.local.get(['colors'], function(result) {
-		globalTheme = Object.values(result)[0];
-	});
+function checkColorVariables() {
+    extAPI.storage.local.get(['colors'], function (result) {
+        globalTheme = Object.values(result)[0];
+    });
 }
+
 //now, make a shitty force refresh function.
 
-window.onload = function() {
+window.onload = function () {
     //this function lets you remotely activate the graph refresh.
-    extAPI.extension.getBackgroundPage().setGraphFunction(function() {
+    extAPI.extension.getBackgroundPage().setGraphFunction(function () {
         //graph has been "force refreshed"
         try {
             checkForUpdates();
@@ -950,7 +956,7 @@ window.onload = function() {
     getHighlightedFromValue();
     checkBSvariables();
     checkColorVariables();
-    extAPI.storage.local.get(['bsTable'], function(exportedData) {
+    extAPI.storage.local.get(['bsTable'], function (exportedData) {
         var convertedData = Object.values(exportedData);
         //alert(convertedData);
         parseData(convertedData);
