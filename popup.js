@@ -218,7 +218,14 @@ function mouseOverFunction(dotObject, bsValue, timeValue) {
         if (topPreCalc <= 68) {
             topPreCalc = 68;
         }
-        mainTooltip.style.left = (styleFromDot + 5) + "px";
+        // Position tooltip; keep it within chart width (316px)
+        var tooltipWidth = mainTooltip.offsetWidth || 120;
+        var chartWidth = 316;
+        var leftCalc = styleFromDot + 5;
+        if (leftCalc + tooltipWidth > chartWidth) {
+            leftCalc = Math.max(0, styleFromDot - tooltipWidth - 5);
+        }
+        mainTooltip.style.left = (leftCalc) + "px";
         mainTooltip.style.top = (topPreCalc) + "px";
         mainTooltip.style.visibility = "visible"
     };
