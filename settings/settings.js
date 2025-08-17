@@ -1,10 +1,13 @@
+// Compatibility wrapper for Chrome/Firefox APIs
+const extAPI = (typeof browser !== 'undefined') ? browser : chrome;
+
 var onPressButton
 
 document.getElementById("backButton").onclick = function() {
     console.log("Going Back");
     document.getElementById("backButton").blur();
     window.location.href = "/../popup.html";
-    chrome.browserAction.setPopup({
+    extAPI.browserAction.setPopup({
         popup: "/../popup.html"
     });
 }
@@ -28,74 +31,89 @@ function mmoltoMGDL(mmolVal) {
     return (tempMgdlFinal);
 }
 
-function checkBSvariables() {
-	if(document){
-	    // don't forget to check if mmol or mgdl!!!
-	    chrome.storage.local.get(['alarmValues'], function(result) {
-	        chrome.storage.local.get(['snoozeMinutes'], function(alarmSnoozeVal) {
-	            chrome.storage.local.get(['unitValue'], function(unitResult) {
-	            	chrome.storage.local.get(['colors'], function(colorResult) {
-		                var unitType = Object.values(unitResult)[0];
-		                var alarmValues = Object.values(result);
-		                var colorValues = Object.values(colorResult)[0];
-		                console.log(alarmValues);
-		                if (alarmValues) {
-		                    var urgentLowData = alarmValues[0][0];
-		                    var lowData = alarmValues[0][1];
-		                    var highData = alarmValues[0][2];
-		                    var urgentHighData = alarmValues[0][3];
-		                    //check if mmol
-		                    if (unitType == "mmol") {
-		                        urgentLowData[0] = mgdlToMMOL(urgentLowData[0]);
-		                        lowData[0] = mgdlToMMOL(lowData[0]);
-		                        highData[0] = mgdlToMMOL(highData[0]);
-		                        urgentHighData[0] = mgdlToMMOL(urgentHighData[0]);
-		                    }
-		                    var snoozeData = Number(Object.values(alarmSnoozeVal)[0]);
-		                    //check if any are changed.
-                            document.getElementById("urgentLowAlertValue").value = urgentLowData[0];
-                            document.getElementById("urgentLowAlertValue").placeholder = urgentLowData[0];
+// Promisified wrappers for extAPI.storage.local.get/set
+function getStorage(key) {
+  return new Promise((resolve, reject) => {
+    extAPI.storage.local.get(key, result => {
+      if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
+      else resolve(result);
+    });
+  });
+}
+function setStorage(obj) {
+  return new Promise((resolve, reject) => {
+    extAPI.storage.local.set(obj, () => {
+      if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
+      else resolve();
+    });
+  });
+}
 
-                            document.getElementById("lowAlertValue").value = lowData[0];
-                            document.getElementById("lowAlertValue").placeholder = lowData[0];
+async function checkBSvariables() {
+  if(document){
+    try {
+      const result = await getStorage(['alarmValues']);
+      const alarmSnoozeVal = await getStorage(['snoozeMinutes']);
+      const unitResult = await getStorage(['unitValue']);
+      const colorResult = await getStorage(['colors']);
+      const unitType = Object.values(unitResult)[0];
+      const alarmValues = Object.values(result);
+      const colorValues = Object.values(colorResult)[0];
+      if (alarmValues) {
+        var urgentLowData = alarmValues[0][0];
+        var lowData = alarmValues[0][1];
+        var highData = alarmValues[0][2];
+        var urgentHighData = alarmValues[0][3];
+        //check if mmol
+        if (unitType == "mmol") {
+          urgentLowData[0] = mgdlToMMOL(urgentLowData[0]);
+          lowData[0] = mgdlToMMOL(lowData[0]);
+          highData[0] = mgdlToMMOL(highData[0]);
+          urgentHighData[0] = mgdlToMMOL(urgentHighData[0]);
+        }
+        var snoozeData = Number(Object.values(alarmSnoozeVal)[0]);
+        //check if any are changed.
+        document.getElementById("urgentLowAlertValue").value = urgentLowData[0];
+        document.getElementById("urgentLowAlertValue").placeholder = urgentLowData[0];
 
-                            document.getElementById("highAlertValue").value = highData[0];
-                            document.getElementById("highAlertValue").placeholder = highData[0];
+        document.getElementById("lowAlertValue").value = lowData[0];
+        document.getElementById("lowAlertValue").placeholder = lowData[0];
 
-                            document.getElementById("urgentHighAlertValue").value = urgentHighData[0];
-                            document.getElementById("urgentHighAlertValue").placeholder = urgentHighData[0];
+        document.getElementById("highAlertValue").value = highData[0];
+        document.getElementById("highAlertValue").placeholder = highData[0];
 
-		                    document.getElementById("urgentLowEnabled").checked = urgentLowData[1];
-		                    document.getElementById("lowEnabled").checked = lowData[1];
-		                    document.getElementById("highEnabled").checked = highData[1];
-		                    document.getElementById("urgentHighEnabled").checked = urgentHighData[1];
-		                    console.log("SNOOZE DATA IS " + snoozeData);
-		                    if (isNaN(snoozeData)) {
-		                        //support for old users who don't have data.
-		                        snoozeData = 30;
-		                    }
-                            document.getElementById("alarmSnoozeLength").value = snoozeData;
-                            document.getElementById("alarmSnoozeLength").placeholder = snoozeData;
-		                    //set color box value.
-		                    if(colorValues == "colors"){
-		                    	document.getElementById("themeBox").options[1].selected = 'selected';
-		                    }else{
-		                    	document.getElementById("themeBox").options[0].selected = 'selected';
-		                    }
-		                    //now, set site url in the same function.
-		                    chrome.storage.local.get(['siteUrl'], function(siteResult) {
-		                        var siteUrlValue = Object.values(siteResult);
-		                        if (siteUrlValue != "") {
-                                    document.getElementById("siteURL").value = siteUrlValue;
-                                    document.getElementById("siteURL").placeholder = siteUrlValue;
-		                        }
-		                    });
-		                }
-	           		});
-	            });
-	        });
-	    });
-	}
+        document.getElementById("urgentHighAlertValue").value = urgentHighData[0];
+        document.getElementById("urgentHighAlertValue").placeholder = urgentHighData[0];
+
+        document.getElementById("urgentLowEnabled").checked = urgentLowData[1];
+        document.getElementById("lowEnabled").checked = lowData[1];
+        document.getElementById("highEnabled").checked = highData[1];
+        document.getElementById("urgentHighEnabled").checked = urgentHighData[1];
+        console.log("SNOOZE DATA IS " + snoozeData);
+        if (isNaN(snoozeData)) {
+          //support for old users who don't have data.
+          snoozeData = 30;
+        }
+        document.getElementById("alarmSnoozeLength").value = snoozeData;
+        document.getElementById("alarmSnoozeLength").placeholder = snoozeData;
+        //set color box value.
+        if(colorValues == "colors"){
+          document.getElementById("themeBox").options[1].selected = 'selected';
+        }else{
+          document.getElementById("themeBox").options[0].selected = 'selected';
+        }
+        //now, set site url in the same function.
+        const siteResult = await getStorage(['siteUrl']);
+        const siteUrlValue = Object.values(siteResult);
+        if (siteUrlValue != "") {
+          document.getElementById("siteURL").value = siteUrlValue;
+          document.getElementById("siteURL").placeholder = siteUrlValue;
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
 }
 
 function getValueText(stringName, unitType) {
@@ -236,9 +254,20 @@ function alertFunc(customMessage) {
     alert(customMessage);
 }
 
+function reloadBackgroundAndSettings() {
+    // In Firefox, we can't call getBackgroundPage(). Instead, reload the extension or send a message.
+    if (extAPI.runtime && extAPI.runtime.reload) {
+        extAPI.runtime.reload();
+    } else {
+        // fallback: reload settings page
+        checkBSvariables();
+    }
+}
+
+// Update saveFunction to use reloadBackgroundAndSettings
 function saveFunction() {
     //first check if mmol
-    chrome.storage.local.get(['unitValue'], function(unitResult) {
+    extAPI.storage.local.get(['unitValue'], function(unitResult) {
         var unitType = Object.values(unitResult)[0];
         var uLSaved = getValueText("urgentLowAlertValue", unitType);
         var lSaved = getValueText("lowAlertValue", unitType);
@@ -261,11 +290,11 @@ function saveFunction() {
             //now, parse the site url and see if it's a real site.
             getURLText(function(returnVal) {
                 if (returnVal != false) {
-                    chrome.storage.local.set({
+                    extAPI.storage.local.set({
                         siteUrl: returnVal
                     }, function() {
                         console.log("SAVED SITE URL!");
-                        chrome.storage.local.set({
+                        extAPI.storage.local.set({
                             alarmValues: [
                                 [uLSaved, uLCheckbox],
                                 [lSaved, lCheckbox],
@@ -274,15 +303,11 @@ function saveFunction() {
                             ]
                         }, function() {
                             console.log('SAVED DATA!');
-                            chrome.storage.local.set({
+                            extAPI.storage.local.set({
                                 snoozeMinutes: snoozeLength
                             }, function() {
-                            	chrome.storage.local.set({colors:themeList},function(){
-                                	//once saved, force reload.
-	                                chrome.extension.getBackgroundPage().webRequest(function() {
-	                                    //it is done reloading, force reload settings page!
-	                                    checkBSvariables();
-	                                });
+                                extAPI.storage.local.set({colors:themeList},function(){
+                                    reloadBackgroundAndSettings();
                                 });
                             });
                         });
@@ -298,7 +323,15 @@ function saveFunction() {
     });
 }
 
-
+// Refactor permissions request to use extAPI if available
+function requestPermissions(origins, callback) {
+    if (extAPI.permissions && extAPI.permissions.request) {
+        extAPI.permissions.request({ origins: [origins] }, callback);
+    } else {
+        // Firefox may not support dynamic permissions; assume granted
+        callback(true);
+    }
+}
 
 document.getElementsByClassName("submitButton")[0].onclick = function() {
     //when submit button clicked, do some stuff.
@@ -310,19 +343,13 @@ document.getElementsByClassName("submitButton")[0].onclick = function() {
 			saveFunction();
 		}else{
 			console.log("NOT HEROKU");
-			//request permissions
-			chrome.permissions.request({
-		      origins: [urlArray[1]]
-		    }, function(granted) {
-		      // The callback argument will be true if the user granted the permissions.
-		      if (granted) {
-		      	//we good. save NOW!
-		      	saveFunction();
-		      } else {
-		      	//they denied it. send alert.
-		      	alertFunc("ERROR: Permissions must be manually granted on non-heroku sites.");
-		      }
-		    });
+			requestPermissions(urlArray[1], function(granted) {
+				if (granted) {
+					saveFunction();
+				} else {
+					alertFunc("ERROR: Permissions must be manually granted on non-heroku sites.");
+				}
+			});
 		}
 	});
 }

@@ -50,51 +50,63 @@ var storageArray = [{
 ];
 var storageInc = 0; //used for looping through storage
 
-function saveStorageData(callbackFunction){
-  chrome.storage.local.get(storageArray[storageInc], function(data){
-    chrome.storage.local.getBytesInUse(Object.keys(data), function(bytes){
-      //console.log(bytes+"BYTES")
-      if(bytes==0){
-        //does not exist. make sure to set default.
-        chrome.storage.local.set(storageArray[storageInc], function(){
-          console.log("SET "+Object.keys(storageArray[storageInc])+" TO "+Object.values(storageArray[storageInc]));
-          storageInc++;
-          if(storageInc < storageArray.length){
-            //do it again.
-            saveStorageData(callbackFunction)
-          }else{
-            if(callbackFunction){
-              //go back to loaddefaultvariables function.
-              callbackFunction();
-            }
-          }
-        });
-      }else{
-        //add 1 anyways.. we still need to go up
-        storageInc++; 
-        if(storageInc < storageArray.length){
-          //do it again.
-          saveStorageData(callbackFunction)
-        }else{
-          if(callbackFunction){
-            //go back to loaddefaultvariables function.
-            callbackFunction();
-          }
-        }
-      }
+// Compatibility wrapper for Chrome/Firefox APIs
+const extAPI = (typeof browser !== 'undefined') ? browser : chrome;
+
+// Promisified wrappers for extAPI.storage.local.get/set/getBytesInUse
+function getStorage(key) {
+  return new Promise((resolve, reject) => {
+    extAPI.storage.local.get(key, result => {
+      if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
+      else resolve(result);
+    });
+  });
+}
+function setStorage(obj) {
+  return new Promise((resolve, reject) => {
+    extAPI.storage.local.set(obj, () => {
+      if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
+      else resolve();
+    });
+  });
+}
+function getBytesInUse(keys) {
+  return new Promise((resolve, reject) => {
+    extAPI.storage.local.getBytesInUse(keys, bytes => {
+      if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
+      else resolve(bytes);
     });
   });
 }
 
-function loadDefaultVariables(){
-  saveStorageData(function(){
+// Refactored saveStorageData to use async/await
+async function saveStorageData(callbackFunction) {
+  try {
+    const data = await getStorage(storageArray[storageInc]);
+    const bytes = await getBytesInUse(Object.keys(data));
+    if (bytes === 0) {
+      await setStorage(storageArray[storageInc]);
+    }
+    storageInc++;
+    if (storageInc < storageArray.length) {
+      await saveStorageData(callbackFunction);
+    } else {
+      if (callbackFunction) callbackFunction();
+    }
+  } catch (err) {
+    console.error('Storage error:', err);
+    if (callbackFunction) callbackFunction();
+  }
+}
+// Refactored loadDefaultVariables to use async/await
+async function loadDefaultVariables() {
+  await saveStorageData(() => {
     console.log("Extension done with initial load!");
     webRequest();
-  })
+  });
 }
 
-chrome.runtime.onInstalled.addListener(function() {
-    //note: please clean this code up >_>
+extAPI.runtime.onInstalled.addListener(function() {
     loadDefaultVariables();
 });
 //get data from nightscout!
@@ -112,14 +124,14 @@ function setGraphFunction(callbackFunction) {
 
 function notifClear(id) {
     setTimeout(function() {
-        chrome.notifications.clear(id, function() {
+        extAPI.notifications.clear(id, function() {
             //console.log("wow it cleared!");
         })
     }, 10000);
 }
 
 function clearById(id) {
-    chrome.notifications.clear(id, function() {
+    extAPI.notifications.clear(id, function() {
         console.log("cleared succesfully!");
     })
 }
@@ -134,7 +146,7 @@ function unitToProperString(unitType) {
 }
 
 function saveNotifID(notifID) {
-    chrome.storage.local.set({
+    extAPI.storage.local.set({
         lastAlarmName: notifID
     }, function() {
         console.log("Notification Sent!");
@@ -145,15 +157,15 @@ function saveNotifID(notifID) {
 function notificationFunction(bgValue, dateValue, valueText, unitType) {
     var tempColor;
     if (valueText != "Low" && valueText != "High") return;
-    //chrome.browserAction.setBadgeBackgroundColor({color:tempColor});
-    chrome.storage.local.get(['lastAlarmName'], function(lastAlarmRaw) {
+    //extAPI.browserAction.setBadgeBackgroundColor({color:tempColor});
+    extAPI.storage.local.get(['lastAlarmName'], function(lastAlarmRaw) {
         var lastAlarmString = Object.values(lastAlarmRaw)[0];
         //audioNotification()
         //now, see if it's snoozed.
-        chrome.storage.local.get(['snoozeUnix'], function(snoozeUnixRaw) {
+        extAPI.storage.local.get(['snoozeUnix'], function(snoozeUnixRaw) {
             var snoozeUnixString = Object.values(snoozeUnixRaw)[0];
             //now we can see if the snooze has been within x (default 30?? minutes)
-            chrome.storage.local.get(['snoozeMinutes'], function(snoozeMinutesRaw) {
+            extAPI.storage.local.get(['snoozeMinutes'], function(snoozeMinutesRaw) {
                 var snoozeMinutesVal = Number(Object.values(snoozeMinutesRaw)[0]);
                 if (snoozeMinutesVal == 0) {
                     //just for old users who don't have old variables.
@@ -225,7 +237,7 @@ function notificationFunction(bgValue, dateValue, valueText, unitType) {
                             //notifications are disabled. whoops.
                             clearNotifications(notifID);
                         } else {
-                            chrome.notifications.create(
+                            extAPI.notifications.create(
                                 notifID, {
                                     type: 'basic',
                                     iconUrl: 'images/nightscout128.png',
@@ -254,13 +266,13 @@ function notificationFunction(bgValue, dateValue, valueText, unitType) {
     });
 }
 
-chrome.notifications.onButtonClicked.addListener(function(notifId, btnIdx) {
+extAPI.notifications.onButtonClicked.addListener(function(notifId, btnIdx) {
     if (btnIdx == 0) {
         clearNotifications();
         //alert("YEET");
     } else if (btnIdx == 1) {
         var snoozeUnixTemp = Math.round((new Date()).getTime() / 1000);
-        chrome.storage.local.set({
+        extAPI.storage.local.set({
             snoozeUnix: snoozeUnixTemp
         }, function() {
             console.log("SNOOZED! SEND SNOOZE NOTIF~!");
@@ -271,7 +283,7 @@ chrome.notifications.onButtonClicked.addListener(function(notifId, btnIdx) {
 });
 
 function stopSnooze() {
-    chrome.storage.local.set({
+    extAPI.storage.local.set({
         snoozeUnix: "dne"
     }, function() {
         console.log("ALARM DATA HAS BEEN RESET!");
@@ -279,7 +291,7 @@ function stopSnooze() {
 }
 
 function checkBSvariables(callbackFunc) {
-    chrome.storage.local.get(['alarmValues'], function(result) {
+    extAPI.storage.local.get(['alarmValues'], function(result) {
         var alarmValues = Object.values(result)
         //console.log(alarmValues);
         //console.log("ARE ALARM VALUES");
@@ -307,7 +319,7 @@ function checkBSvariables(callbackFunc) {
 
 
 function clearNotifications(lastAlarmRaw) {
-    chrome.notifications.clear("nightscout-alert", function() {
+    extAPI.notifications.clear("nightscout-alert", function() {
         //console.log("cleared notification, boss");
         //now, set last to nothing.
         //chrome.storage.local.set({lastAlarmName: "dne"}, function() {
@@ -330,8 +342,8 @@ function bsAlerts(bloodSugarVal, dateValue, unitType) {
         notificationFunction(bloodSugarVal, dateValue, "High", unitType);
     } else {
         //not high, not low. let's clear notifications anyways.
-        chrome.storage.local.get(['lastAlarmName'], function(lastAlarmRaw) {
-            chrome.browserAction.setBadgeBackgroundColor({
+        extAPI.storage.local.get(['lastAlarmName'], function(lastAlarmRaw) {
+            extAPI.browserAction.setBadgeBackgroundColor({
                 color: "gray"
             });
             var lastAlarmString = Object.values(lastAlarmRaw)[0];
@@ -417,7 +429,7 @@ function bsColors(bgValue, unitType, fullData) {
     } else if (Number(bgValue) >= highValueTemp) {
         customColor = "#c6a400";
     }
-    chrome.browserAction.setBadgeBackgroundColor({
+    extAPI.browserAction.setBadgeBackgroundColor({
         color: customColor
     });
     var bgValueString = bgValue;
@@ -433,11 +445,11 @@ function bsColors(bgValue, unitType, fullData) {
             bgValueString = bgValue.toString() + arrowValues(directionValue.toUpperCase());
         }
     }
-    chrome.browserAction.setBadgeText({
+    extAPI.browserAction.setBadgeText({
         text: bgValueString.toString()
     });
     //chrome.browserAction.setBadgeBackgroundColor({color:"gray"})
-    chrome.browserAction.setTitle({
+    extAPI.browserAction.setTitle({
         title: "Blood Glucose: " + bgValue.toString()+unitToProperString(unitType)+"\n"+"Delta: "+newNum+" ("+arrowValues(directionValue.toUpperCase())+")"
     });
 }
@@ -446,7 +458,7 @@ function saveFunc(responseData, callbackFunc) {
     //console.log("SAVE FUNC ENABLED!");
     //before saving, check BG vals.
     //var convertedString = JSON.stringify(responseData);
-    chrome.storage.local.get(['tempBsTable'], function(result) {
+    extAPI.storage.local.get(['tempBsTable'], function(result) {
         //data needs to be updated!
         //console.log("Updating data!");
         /* if(responseData.toString() == "pushNotifications"){
@@ -459,7 +471,7 @@ function saveFunc(responseData, callbackFunc) {
              //bsAlerts(tempBG,tempDate);
            } else if here */
         //but first, double check unit type.
-        chrome.storage.local.get(['unitValue'], function(unitResult) {
+        extAPI.storage.local.get(['unitValue'], function(unitResult) {
             var unitType = Object.values(unitResult)[0];
             if (Object.values(result) == responseData) {
                 //it's the same.
@@ -479,12 +491,12 @@ function saveFunc(responseData, callbackFunc) {
                 //still, double check!
             } else {
                 console.log("Saving Data!");
-                chrome.storage.local.set({
+                extAPI.storage.local.set({
                     tempBsTable: responseData
                 }, function() {
                     //web request AGAIN, this time with the full dataTable.
                     webRequest(function(dataReturned){
-                      chrome.storage.local.set({bsTable: dataReturned},function(){
+                      extAPI.storage.local.set({bsTable: dataReturned},function(){
                         //parse
                         //now that it's been saved, double check that you callback.
                         if (callbackFunc) {
@@ -633,14 +645,14 @@ function webError() {
 }
 
 function alarmProfileFunction2(alarmTempArray,callbackFunc){
-  chrome.storage.local.get(['gottenProfileAlarms'], function(gottenResult){
+  extAPI.storage.local.get(['gottenProfileAlarms'], function(gottenResult){
   var gottenValue = Object.values(gottenResult)[0];
     if(gottenValue == false){
       console.log("Pulling alarm data from the Nightscout site!");
-      chrome.storage.local.set({alarmValues: alarmTempArray}, function(){
+      extAPI.storage.local.set({alarmValues: alarmTempArray}, function(){
         //set old profile url too!
         console.log("GETTING ALARM VALUES FROM NIGHTSCOUT!");
-        chrome.storage.local.set({gottenProfileAlarms: true}, function(){
+        extAPI.storage.local.set({gottenProfileAlarms: true}, function(){
           if (callbackFunc) {
             callbackFunc();
           }
@@ -659,19 +671,19 @@ function alarmProfileFunction(alarmTempArray,callbackFunc){
   //get to see if changed from default site stuff yet;
   //NOTE: IF PROFILE URL SAVED VALUE IS DIFFERENT, RESET THE VALUESS OF gottenProfileAlarms!
   // this will ALSO handle profile url stuff.
-  chrome.storage.local.get(['lastProfileUrl'], function(lastProfileURLResult){
+  extAPI.storage.local.get(['lastProfileUrl'], function(lastProfileURLResult){
     var profileUrlValue = Object.values(lastProfileURLResult)[0];
-    chrome.storage.local.get(['siteUrl'], function(siteUrlResult){
+    extAPI.storage.local.get(['siteUrl'], function(siteUrlResult){
       var siteUrlValue = Object.values(siteUrlResult)[0];
       if(profileUrlValue == siteUrlValue){
         alarmProfileFunction2(alarmTempArray,callbackFunc);
         //nothing has changed. the url is still the same.
       }else{
         //it has changed. set the new profile url, and set gottenProfileAlarms to false.
-        chrome.storage.local.set({gottenProfileAlarms: false}, function(){
-            chrome.storage.local.set({gottenColors: false}, function(){
+        extAPI.storage.local.set({gottenProfileAlarms: false}, function(){
+            extAPI.storage.local.set({gottenColors: false}, function(){
               //it has been set to false.
-              chrome.storage.local.set({lastProfileUrl: siteUrlValue}, function(){
+              extAPI.storage.local.set({lastProfileUrl: siteUrlValue}, function(){
                 //new profile url set.
                 alarmProfileFunction2(alarmTempArray,callbackFunc);
               });
@@ -684,13 +696,13 @@ function alarmProfileFunction(alarmTempArray,callbackFunc){
 
 function colorProfileFunction(colorValue,callbackFunc){
    //!!!   
-    chrome.storage.local.get(['gottenColors'], function(gottenResult){
+    extAPI.storage.local.get(['gottenColors'], function(gottenResult){
       var gottenValue = Object.values(gottenResult)[0];
         if(gottenValue == false){
           console.log("Pulling color data from the Nightscout site!");
-          chrome.storage.local.set({colors: colorValue}, function(){
+          extAPI.storage.local.set({colors: colorValue}, function(){
             //set old profile stuff too!
-            chrome.storage.local.set({gottenColors: true}, function(){
+            extAPI.storage.local.set({gottenColors: true}, function(){
               if (callbackFunc) {
                 callbackFunc();
               }
@@ -752,14 +764,14 @@ function profileWebRequest(profileURL, callbackFunctionWeb) {
                 ]*/
                 //unit is stored in "mgdl" or "mmol". save this and return.
                 //check if unit has changed.
-                chrome.storage.local.get(['unitValue'], function(unitResult) {
+                extAPI.storage.local.get(['unitValue'], function(unitResult) {
                   var unitType = Object.values(unitResult)[0];
                   if(unitType==unitValueSetting){
                     //it's the same.
                     alarmProfileFunction(alarmArray,callbackFunctionWeb)
                   }else{
                     //change it.
-                    chrome.storage.local.set({unitValue: unitValueSetting}, function(){
+                    extAPI.storage.local.set({unitValue: unitValueSetting}, function(){
                       //set unit. do callback now yay!
                       console.log("SAVED UNIT AS " + unitValueSetting);
                       alarmProfileFunction(alarmArray,function(){
@@ -783,7 +795,7 @@ function profileWebRequest(profileURL, callbackFunctionWeb) {
 
 function webRequest(callbackFunc,fullChart) {
     //we need a couple of variables. first of all, get the site URL.
-    chrome.storage.local.get(['siteUrl'], function(siteData) {
+    extAPI.storage.local.get(['siteUrl'], function(siteData) {
         var siteUrlBase
         if(fullChart == true){
           siteUrlBase = manipulateURL(siteData,289);

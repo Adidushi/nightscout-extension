@@ -1,3 +1,9 @@
+// Compatibility wrapper for Chrome/Firefox APIs
+const extAPI = (typeof browser !== 'undefined') ? browser : chrome;
+
+// Example refactor for storage usage:
+// Replace chrome.storage.local.get with extAPI.storage.local.get
+
 //runs when popup is clicked every time.
 //first, get some data.
 var urgentLowValue;
@@ -105,7 +111,7 @@ function convertDateNoSpace(dateObject) {
 
 
 function convertDateFinal(dateObject) {
-    chrome.storage.local.get(['dataAmount'], function(result) {
+    extAPI.storage.local.get(['dataAmount'], function(result) {
         var getNumber = Object.values(result);
         var convertedDate = new Date(dateObject);
         convertedDate.setMinutes(convertedDate.getMinutes() - ((Number(getNumber) * 5) - 5));
@@ -679,18 +685,18 @@ function parseData(response) {
     //make sure to double check alarm values first of all!
     if (response != "dne") {
         //there is a response. now get unit type.
-        chrome.storage.local.get(['unitValue'], function(unitResult) {
-        	chrome.storage.local.get(['dataAmount'], function(dataResult) {
-	            var unitType = Object.values(unitResult)[0];
-	            var dataAmount = Number(Object.values(dataResult)[0]);
-	            document.getElementsByClassName("errorText")[0].innerHTML = ""
-	            globalOldNumber = dataAmount;
-	            //make sure to delete all previous dots.
-	            var parsed = JSON.parse(response);
-	            //console.log("LENGTH IS " + parsed.length);
-	            console.log("PARSING DATA NOW!");
-	            globalUnit = unitType;
-	            createGraph(parsed,dataAmount);
+        extAPI.storage.local.get(['unitValue'], function(unitResult) {
+            extAPI.storage.local.get(['dataAmount'], function(dataResult) {
+                var unitType = Object.values(unitResult)[0];
+                var dataAmount = Number(Object.values(dataResult)[0]);
+                document.getElementsByClassName("errorText")[0].innerHTML = ""
+                globalOldNumber = dataAmount;
+                //make sure to delete all previous dots.
+                var parsed = JSON.parse(response);
+                //console.log("LENGTH IS " + parsed.length);
+                console.log("PARSING DATA NOW!");
+                globalUnit = unitType;
+                createGraph(parsed,dataAmount);
        		});
         });
     } else if (response == "dne") {
@@ -713,8 +719,8 @@ function unitToProperString(unitType) {
 }
 
 function checkForUpdates() {
-    chrome.storage.local.get(['bsTable'], function(exportedData) {
-        chrome.storage.local.get(['dataAmount'], function(dataResult) {
+    extAPI.storage.local.get(['bsTable'], function(exportedData) {
+        extAPI.storage.local.get(['dataAmount'], function(dataResult) {
 	        var convertedData = Object.values(exportedData);
 	        var dataAmount = Number(Object.values(dataResult)[0]);
 	        if (JSON.stringify(convertedData) == JSON.stringify(globalOldData) && dataAmount == globalOldNumber) {
@@ -737,6 +743,24 @@ function checkForUpdates() {
     });
 }
 
+// Promisified wrappers for extAPI.storage.local.get/set
+function getStorage(key) {
+  return new Promise((resolve, reject) => {
+    extAPI.storage.local.get(key, result => {
+      if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
+      else resolve(result);
+    });
+  });
+}
+function setStorage(obj) {
+  return new Promise((resolve, reject) => {
+    extAPI.storage.local.set(obj, () => {
+      if (extAPI.runtime.lastError) reject(extAPI.runtime.lastError);
+      else resolve();
+    });
+  });
+}
+
 function setButtons(button) {
     var newButtons = document.getElementsByTagName('button');
     for (var a = 0; a < newButtons.length; a++) {
@@ -752,7 +776,7 @@ function setButtons(button) {
 }
 
 function getHighlightedFromValue() {
-    chrome.storage.local.get(['dataAmount'], function(exportedData) {
+    extAPI.storage.local.get(['dataAmount'], function(exportedData) {
         var exportedNumber = Number(Object.values(exportedData));
         console.log(exportedNumber)
         var idString;
@@ -838,7 +862,7 @@ function buttonClickFunc(button) {
                     exportNumber = 289;
                     break;
             }
-            chrome.storage.local.set({
+            extAPI.storage.local.set({
                 dataAmount: exportNumber
             }, function() {
                 console.log('Amount of data has been set to ' + exportNumber);
@@ -861,22 +885,20 @@ function buttonClickFunc(button) {
             console.log("HOLY COG BATMAN");
             button.blur();
             window.location.href = "settings/settings.html";
-            chrome.browserAction.setPopup({
+            extAPI.browserAction.setPopup({
                 popup: "settings/settings.html"
             });
         };
     } else if (button.className == "nightscoutButton") {
         //do stuf here
         button.onclick = function() {
-            chrome.storage.local.get(['siteUrl'], function(siteData) {
+            extAPI.storage.local.get(['siteUrl'], function(siteData) {
                 var siteUrlBase = manipulateURL(siteData);
-                chrome.tabs.create({
+                extAPI.tabs.create({
                     'url': siteUrlBase
                 });
             });
         };
-    } else {
-
     }
 }
 var buttons = document.getElementsByTagName('button');
@@ -928,7 +950,7 @@ window.onload = function() {
     getHighlightedFromValue();
     checkBSvariables();
     checkColorVariables();
-    chrome.storage.local.get(['bsTable'], function(exportedData) {
+    extAPI.storage.local.get(['bsTable'], function(exportedData) {
         var convertedData = Object.values(exportedData);
         //alert(convertedData);
         parseData(convertedData);
