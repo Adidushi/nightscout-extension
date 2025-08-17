@@ -100,8 +100,8 @@ function convertDate(dateObject) {
         h = h.toString().substr(1);
     }
     var dateString = h + ":" + m// + " " + ampm;
-    document.getElementById("dateNewText").innerHTML = dateString;
-    document.getElementById("dateNewText2").innerHTML = ampm;
+    document.getElementById("dateNewText").textContent = dateString;
+    document.getElementById("dateNewText2").textContent = ampm;
     return dateString;
 }
 
@@ -185,8 +185,8 @@ function convertDateFinal(dateObject) {
         var textClone2 = document.createElement("p");
         textClone1.className = "dateMarkersNew";
         textClone2.className = "dateMarkersNew";
-        textClone1.innerHTML = dateString;
-        textClone2.innerHTML = ampm;
+        textClone1.textContent = dateString;
+        textClone2.textContent = ampm;
         dateClone.appendChild(textClone1);
         dateClone.appendChild(textClone2);
         document.getElementsByClassName("chartBackground")[0].appendChild(dateClone);
@@ -210,8 +210,8 @@ function mouseOverFunction(dotObject, bsValue, timeValue) {
     var mainTooltip = document.getElementsByClassName("mouseOverDiv")[0];
     dotObject.onmouseover = function () {
         //alert("OVER");
-        timeText.innerHTML = convertDateNoSpace(timeValue);
-        bsText.innerHTML = "BG: " + bsValue;
+        timeText.textContent = convertDateNoSpace(timeValue);
+        bsText.textContent = "BG: " + bsValue;
         var styleFromDot = Number((dotObject.style.left).slice(0, -2));
         var styleFromDotTop = Number((dotObject.style.top).slice(0, -2));
         var topPreCalc = (styleFromDotTop + 22)
@@ -447,7 +447,7 @@ function firstDot(dotData, nextDotData) {
     //SET MAIN BLOOD SUGAR VALUE AND GET SOME POPUP ELEMENTS
     var mainText = document.getElementsByClassName("mainText");
     var mainTextHolder = document.getElementsByClassName("mainTextHolder");
-    mainText[0].innerHTML = sgv;
+    mainText[0].textContent = sgv;
     //ARROW VARIABLES
     var arrowUrlString = arrowValues(direction.toUpperCase());
     var arrowStr = "";
@@ -496,7 +496,7 @@ function firstDot(dotData, nextDotData) {
 
     var fullDeltaLabel = document.getElementsByClassName("fullDeltaLabel");
     var fullInnerDeltaLabel = document.getElementsByClassName("fullInnerDeltaLabel");
-    fullDeltaLabel[0].innerHTML = unitToProperString(globalUnit);
+    fullDeltaLabel[0].textContent = unitToProperString(globalUnit);
     if (globalUnit == "mmol") {
         newNum = mgdlToMMOL(newNum);
         fullInnerDeltaLabel[0].style.fontSize = "12px"
@@ -509,7 +509,7 @@ function firstDot(dotData, nextDotData) {
         fullDeltaLabel[0].style.top = "-16px";
         fullDeltaLabel[0].style.fontSize = "16px"
     }
-    fullInnerDeltaLabel[0].innerHTML = newNum;
+    fullInnerDeltaLabel[0].textContent = newNum;
 
 }
 
@@ -551,7 +551,7 @@ function createLines(amount, [bottomVal, topVal]) {
         var textClone = document.createElement("p");
         textClone.className = "destroyMarkers";
         textClone.style.top = newLinePos - (17 / 2) + "px";
-        textClone.innerHTML = bottomVal + (theDifference / (amount)) * i;
+        textClone.textContent = bottomVal + (theDifference / (amount)) * i;
         document.getElementsByClassName("chartBackground")[0].appendChild(textClone);
     }
 }
@@ -715,7 +715,7 @@ function parseData(response) {
             extAPI.storage.local.get(['dataAmount'], function (dataResult) {
                 var unitType = Object.values(unitResult)[0];
                 var dataAmount = Number(Object.values(dataResult)[0]);
-                document.getElementsByClassName("errorText")[0].innerHTML = ""
+                document.getElementsByClassName("errorText")[0].textContent = "";
                 globalOldNumber = dataAmount;
                 //make sure to delete all previous dots.
                 var parsed = JSON.parse(response);
@@ -730,7 +730,7 @@ function parseData(response) {
         //alert("ERROR, NO DATA YET!");
         console.log("ERROR, NO DATA YET");
         document.getElementsByClassName("mainText")[0].style.color = "white";
-        document.getElementsByClassName("errorText")[0].innerHTML = "ERROR: No data!<br>Check the site URL<br> in the settings."
+        document.getElementsByClassName("errorText")[0].textContent = "ERROR: No data!\nCheck the site URL\n in the settings.";
     }
     //}
 }

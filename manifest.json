@@ -1,5 +1,5 @@
 {
-    "name": "Nightscout Firefox Extension",
+    "name": "Nightscout Extension",
     "version": "1.0.0",
     "description": "A Firefox extension that adds a convenient way to check blood sugar data from Nightscout in your browser.",
     "content_security_policy": "script-src 'self'; object-src 'self'",
